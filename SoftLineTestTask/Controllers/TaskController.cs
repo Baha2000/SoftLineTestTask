@@ -11,7 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SoftLineTestTask.Data;
 using SoftLineTestTask.Models;
-using SoftLineTask = SoftLineTestTask.Models.Task;
+using SoftLineTestTask.Models.Entity;
+using SoftLineTask = SoftLineTestTask.Models.Entity.Task;
 
 namespace SoftLineTestTask.Controllers
 {
@@ -24,9 +25,9 @@ namespace SoftLineTestTask.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IActionResult> Index(TaskDataModel model = null)
+        public async Task<IActionResult> Index(TasksViewModel model = null)
         {
-            model ??= new TaskDataModel();
+            model ??= new TasksViewModel();
             
             var httpClient = _httpClientFactory.CreateClient("ApiClient");
             var request = await httpClient.GetAsync("Tasks");
@@ -35,12 +36,12 @@ namespace SoftLineTestTask.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int? id)
         {
             var httpClient = _httpClientFactory.CreateClient("ApiClient");
             var request = await httpClient.DeleteAsync($"Tasks/{id}");
 
-            return RedirectToAction("Index", new TaskDataModel { IsSuccessDelete = request.IsSuccessStatusCode});
+            return RedirectToAction("Index", new TasksViewModel { IsSuccessDelete = request.IsSuccessStatusCode});
         }
 
         [HttpGet]
@@ -49,20 +50,22 @@ namespace SoftLineTestTask.Controllers
             var taskModel = new TaskViewModel();
             
             var httpClient = _httpClientFactory.CreateClient("ApiClient");
-            var request = await httpClient.GetAsync("Statuses");
-            taskModel.Statuses = JsonConvert.DeserializeObject<List<Status>>(await request.Content.ReadAsStringAsync());
-            
+            taskModel.Statuses = await GetStatuses(httpClient);
+
             return View(taskModel);
         }
 
         [HttpPost]
         public async Task<IActionResult> Add(SoftLineTask task)
         {
+            if (!ModelState.IsValid)
+                return View(new TaskViewModel { Task = task, Statuses = await GetStatuses() });
+            
             var content = new StringContent(JsonConvert.SerializeObject(task), Encoding.UTF8, "application/json");
             var httpClient = _httpClientFactory.CreateClient("ApiClient");
             var request = await httpClient.PostAsync("Tasks", content);
 
-            return RedirectToAction("Index", new TaskDataModel { IsSuccessAdded = request.IsSuccessStatusCode });
+            return RedirectToAction("Index", new TasksViewModel { IsSuccessAdded = request.IsSuccessStatusCode });
         }
 
         [HttpGet]
@@ -71,9 +74,8 @@ namespace SoftLineTestTask.Controllers
             var taskModel = new TaskViewModel();
             
             var httpClient = _httpClientFactory.CreateClient("ApiClient");
-            var request = await httpClient.GetAsync("Statuses");
-            taskModel.Statuses = JsonConvert.DeserializeObject<List<Status>>(await request.Content.ReadAsStringAsync());
-            request = await httpClient.GetAsync($"Tasks/{id}");
+            taskModel.Statuses = await GetStatuses(httpClient);
+            var request = await httpClient.GetAsync($"Tasks/{id}");
             taskModel.Task = JsonConvert.DeserializeObject<SoftLineTask>(await request.Content.ReadAsStringAsync());
             
             return View(taskModel);
@@ -82,21 +84,32 @@ namespace SoftLineTestTask.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(SoftLineTask task)
         {
+            if (!ModelState.IsValid)
+                return View(new TaskViewModel { Task = task, Statuses = await GetStatuses() });
+
             var content = new StringContent(JsonConvert.SerializeObject(task), Encoding.UTF8, "application/json");
             var httpClient = _httpClientFactory.CreateClient("ApiClient");
             var request = await httpClient.PutAsync("Tasks", content);
 
-            return RedirectToAction("Index", new TaskDataModel { IsSuccessEdit = request.IsSuccessStatusCode });
+            return RedirectToAction("Index", new TasksViewModel { IsSuccessEdit = request.IsSuccessStatusCode });
         }
 
         public IActionResult HandleTask(int id, string action)
         {
-            if (action == "edit")
-                return RedirectToAction("Edit", new { id });
-            if (action == "delete")
-                return RedirectToAction("Delete", new { id });
+            return action switch
+            {
+                "edit" => RedirectToAction("Edit", new { id }),
+                "delete" => RedirectToAction("Delete", new { id }),
+                _ => RedirectToAction("Index")
+            };
+        }
 
-            return RedirectToAction("Index");
+
+        public async Task<IEnumerable<Status>> GetStatuses(HttpClient httpClient = null)
+        {
+            httpClient ??= _httpClientFactory.CreateClient("ApiClient");
+            var request = await httpClient.GetAsync("Statuses");
+            return JsonConvert.DeserializeObject<List<Status>>(await request.Content.ReadAsStringAsync());
         }
     }
 }

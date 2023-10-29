@@ -1,9 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SoftLineTestTask.Models;
+using SoftLineTestTask.Models.Entity;
 
 namespace SoftLineTestTask.Data
 {
+    /// <summary>
+    /// Класс для работы с контекстом базы данных.
+    /// </summary>
     public class ApplicationDbContext : DbContext
     {
         private readonly IConfiguration _config;

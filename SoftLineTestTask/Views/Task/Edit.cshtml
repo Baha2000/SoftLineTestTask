@@ -12,19 +12,22 @@
     <div class="form-group">
         <label for="name" class="col-sm-2 control-label">Название:</label>
         <div class="col-sm-10">
-            @Html.TextBoxFor(task => Model.Task.Name, new { @class = "form-control", @required = "required"})
+            @Html.TextBoxFor(model => model.Task.Name, new { @class = "form-control", @required = "required" })
+            @Html.ValidationMessageFor(model => model.Task.Name, "", new { @class = "text-danger" })
         </div>
     </div>
     <div class="form-group">
         <label for="description" class="col-sm-2 control-label">Описание:</label>
         <div class="col-sm-10">
-            @Html.TextAreaFor(task => Model.Task.Description, new { @class = "form-control", @required = "required"})
+            @Html.TextAreaFor(model => model.Task.Description, new { @class = "form-control", @required = "required" })
+            @Html.ValidationMessageFor(model => model.Task.Description, "", new { @class = "text-danger" })
         </div>
     </div>
     <div class="form-group">
         <label for="statusId" class="col-sm-2 control-label">Статус:</label>
         <div class="col-sm-10">
-            @Html.DropDownListFor(task => task.Task.StatusId, new SelectList(Model.Statuses, "Id", "Name", Model.Task.StatusId), new { @class = "form-control", @required = "required" })
+            @Html.DropDownListFor(model => model.Task.StatusId, new SelectList(Model.Statuses, "Id", "Name", Model.Task.StatusId), new { @class = "form-control", @required = "required" })
+            @Html.ValidationMessageFor(model => model.Task.StatusId, "", new { @class = "text-danger" })
         </div>
     </div>
     <div class="form-group">

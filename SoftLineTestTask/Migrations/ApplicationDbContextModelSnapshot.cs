@@ -18,7 +18,7 @@ namespace SoftLineTestTask.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("SoftLineTestTask.Models.Status", b =>
+            modelBuilder.Entity("SoftLineTestTask.Models.Entity.Status", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -50,7 +50,7 @@ namespace SoftLineTestTask.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SoftLineTestTask.Models.Task", b =>
+            modelBuilder.Entity("SoftLineTestTask.Models.Entity.Task", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -58,9 +58,11 @@ namespace SoftLineTestTask.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("StatusId")
@@ -73,9 +75,9 @@ namespace SoftLineTestTask.Migrations
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("SoftLineTestTask.Models.Task", b =>
+            modelBuilder.Entity("SoftLineTestTask.Models.Entity.Task", b =>
                 {
-                    b.HasOne("SoftLineTestTask.Models.Status", "Status")
+                    b.HasOne("SoftLineTestTask.Models.Entity.Status", "Status")
                         .WithMany()
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)

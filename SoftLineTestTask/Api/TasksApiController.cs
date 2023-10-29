@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SoftLineTestTask.Data;
-using SoftLineTask = SoftLineTestTask.Models.Task;
+using SoftLineTask = SoftLineTestTask.Models.Entity.Task;
 
 namespace SoftLineTestTask.Api
 {
@@ -45,11 +45,6 @@ namespace SoftLineTestTask.Api
         [HttpPut]
         public IActionResult PutTask([FromBody] SoftLineTask task)
         {
-            // if (id != task.Id)
-            // {
-            //     return BadRequest();
-            // }
-    
             _dbContext.Entry(task).State = EntityState.Modified;
     
             try
@@ -58,14 +53,7 @@ namespace SoftLineTestTask.Api
             }
             catch (DbUpdateConcurrencyException)
             {
-                // if (!TaskExists(id))
-                // {
-                //     return NotFound();
-                // }
-                // else
-                // {
-                //     throw;
-                // }
+                return StatusCode(500, "An internal server error occurred.");
             }
     
             return Ok();
@@ -88,18 +76,13 @@ namespace SoftLineTestTask.Api
             var task = _dbContext.Tasks.Find(id);
             if (task == null)
             {
-                return NotFound();
+                return BadRequest();
             }
     
             _dbContext.Tasks.Remove(task);
             _dbContext.SaveChanges();
     
             return Ok();
-        }
-    
-        private bool TaskExists(int id)
-        {
-            return _dbContext.Tasks.Any(e => e.Id == id);
         }
     }
 }

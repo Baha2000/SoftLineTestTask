@@ -1,4 +1,4 @@
-﻿@model TaskDataModel
+﻿@model TasksViewModel
 @{
     ViewBag.Title = "Список задач";
 }
@@ -7,14 +7,20 @@
 {
     if (Model.IsSuccessDelete.Value)
     {
-        <div class="alert alert-success" role="alert">
-            Задача успешно удалена
+        <div class="alert alert-success alert-dismissible" role="alert">
+          Задача успешно удалена.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
     }
     else
     {
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger alert-dismissible" role="alert">
             Не получилось удалить задачу.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     }
 }
@@ -23,14 +29,20 @@
 {
     if (Model.IsSuccessAdded.Value)
     {
-        <div class="alert alert-success" role="alert">
-            Задача успешно создана
+        <div class="alert alert-success alert-dismissible" role="alert">
+            Задача успешно создана.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     }
     else
     {
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger alert-dismissible" role="alert">
             Не получилось создать задачу.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     }
 }
@@ -39,14 +51,20 @@
 {
     if (Model.IsSuccessEdit.Value)
     {
-        <div class="alert alert-success" role="alert">
-            Задача успешно изменена
+        <div class="alert alert-success alert-dismissible" role="alert">
+            Задача успешно изменена.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     }
     else
     {
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger alert-dismissible" role="alert">
             Не получилось изменить задачу.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     }
 }
@@ -67,7 +85,7 @@
         {
             <tr>
                 <td class="text-center">
-                    <input type="checkbox" name="id" value="@task.Id">
+                    <input type="checkbox" name="id" value="@task.Id" onclick="toggleCheckboxes(this)">
                 </td>
                 <td class="text-center">@task.Name</td>
                 <td class="text-center">@task.Description</td>
@@ -79,7 +97,45 @@
 
     <a href="/Task/Add" class="btn btn-primary">Создать задачу</a>
     
-    <button class="btn btn-primary" type="submit" name="action" value="edit">Редактировать выбранную задачу</button>
+    <button class="btn btn-primary" type="submit" name="action" value="edit" onclick = "if (!validateForm()) return false;">Редактировать выбранную задачу</button>
 
-    <button class="btn btn-primary" type="submit" name="action" value="delete" onclick="return confirm('Вы уверены что хотите удалить выбранную задачу?');">Удалить выбранную задачу</button>
+    <button class="btn btn-primary" type="submit" name="action" value="delete" onclick= "if (!validateForm()) return false; 
+    else return confirm('Вы уверены что хотите удалить выбранную задачу?');">Удалить выбранную задачу</button>
 }
+
+<script>
+    function toggleCheckboxes(checkbox) {
+        var table = checkbox.closest('table');
+        var checkboxes = table.querySelectorAll('input[type="checkbox"]');
+
+        if (checkbox.checked) {
+            checkboxes.forEach(function(item) {
+                if (item !== checkbox) {
+                    item.disabled = true;
+                }
+            });
+        } else {
+            checkboxes.forEach(function(item) {
+                item.disabled = false;
+            });
+        }
+        
+        var row = checkbox.closest('tr');
+        row.classList.toggle('selected', checkbox.checked);
+    }
+    
+    function validateForm() {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            if (checkboxes.length === 0) {
+                alert('Выберите хотя бы одну задачу');
+                return false;
+            }
+            return true;
+        }
+</script>
+
+<style>
+    tr.selected {
+        background-color: #FFFACD;
+    }
+</style>
